@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Network Traffic Analysis Dashboard</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="app-container">
+        <!-- 侧边栏 -->
+        <div class="sidebar">
+            <div class="logo">
+                <h2>Network Traffic</h2>
+                <p>Analysis System</p>
+            </div>
+
+            <nav class="nav-menu">
+                <button class="nav-item active" data-view="data">
+                    <span class="icon">📊</span>
+                    <span>Data Management</span>
+                </button>
+                <button class="nav-item" data-view="traffic">
+                    <span class="icon">📈</span>
+                    <span>Traffic Analysis</span>
+                </button>
+                <button class="nav-item" data-view="security">
+                    <span class="icon">🔒</span>
+                    <span>Security</span>
+                </button>
+                <button class="nav-item" data-view="topology">
+                    <span class="icon">🌐</span>
+                    <span>Topology</span>
+                </button>
+                <button class="nav-item" data-view="path">
+                    <span class="icon">🛣️</span>
+                    <span>Path Analysis</span>
+                </button>
+            </nav>
+        </div>
+
+        <!-- 主内容区 -->
+        <div class="main-content">
+            <div class="header">
+                <h1 id="page-title">Data Management</h1>
+                <button class="btn-primary" id="load-csv-btn">Load CSV File</button>
+            </div>
+
+            <div class="content-area">
+                <!-- Data Management View -->
+                <div class="view active" id="data-view">
+                    <div class="card">
+                        <h3>Current File</h3>
+                        <p id="current-file">No file loaded</p>
+                    </div>
+                    <div class="card">
+                        <h3>Instructions</h3>
+                        <ol>
+                            <li>Click "Load CSV File" to select a network traffic data file</li>
+                            <li>Wait for the data to be loaded and processed</li>
+                            <li>Use the navigation menu to access different analysis functions</li>
+                        </ol>
+                    </div>
+                </div>
+
+                <!-- Traffic Analysis View -->
+                <div class="view" id="traffic-view">
+                    <div class="action-bar">
+                        <button class="btn" id="top-nodes-btn">Top 10 Nodes</button>
+                        <button class="btn" id="https-nodes-btn">HTTPS Traffic</button>
+                        <button class="btn" id="unidirectional-btn">Unidirectional >80%</button>
+                    </div>
+                    <div class="results-container">
+                        <div id="traffic-results"></div>
+                    </div>
+                </div>
+
+                <!-- Security View -->
+                <div class="view" id="security-view">
+                    <div class="action-bar">
+                        <button class="btn" id="anomaly-btn">Detect Anomalies</button>
+                    </div>
+                    <div class="card">
+                        <h3>ACL Access Control Check</h3>
+                        <p style="color: #94a3b8; font-size: 14px; margin-bottom: 15px;">
+                            检查目标 IP 是否违反访问控制规则（禁止/允许与指定 IP 范围建立会话）
+                        </p>
+                        <div class="form-group">
+                            <label>Target IP (地址1):</label>
+                            <input type="text" id="acl-target-ip" placeholder="e.g., 183.94.22.88">
+                        </div>
+                        <div class="form-group">
+                            <label>Start IP (地址2 - 范围起始):</label>
+                            <input type="text" id="acl-start-ip" placeholder="e.g., 116.0.0.0">
+                        </div>
+                        <div class="form-group">
+                            <label>End IP (地址3 - 范围结束):</label>
+                            <input type="text" id="acl-end-ip" placeholder="e.g., 116.255.255.255">
+                        </div>
+                        <div class="form-group">
+                            <label>Rule Type:</label>
+                            <select id="acl-rule-type" style="width: 100%; padding: 10px; background: #1e293b; border: 1px solid #334155; border-radius: 6px; color: #e2e8f0; font-size: 14px;">
+                                <option value="Deny">Deny (禁止)</option>
+                                <option value="Allow">Allow (允许)</option>
+                            </select>
+                        </div>
+                        <button class="btn-primary" id="acl-check-btn">Check ACL</button>
+                    </div>
+                    <div class="results-container">
+                        <div id="security-results"></div>
+                    </div>
+                </div>
+
+                <!-- Topology View -->
+                <div class="view" id="topology-view">
+                    <div class="action-bar">
+                        <button class="btn" id="star-structure-btn">Find Star Structures</button>
+                    </div>
+                    <div class="results-container">
+                        <div id="topology-results"></div>
+                    </div>
+                </div>
+
+                <!-- Path Analysis View -->
+                <div class="view" id="path-view">
+                    <div class="card">
+                        <h3>Find Shortest Path</h3>
+                        <div class="form-group">
+                            <label>Source IP:</label>
+                            <input type="text" id="src-ip" placeholder="e.g., 192.168.1.1">
+                        </div>
+                        <div class="form-group">
+                            <label>Destination IP:</label>
+                            <input type="text" id="dst-ip" placeholder="e.g., 8.8.8.8">
+                        </div>
+                        <button class="btn-primary" id="find-path-btn">Find Path</button>
+                    </div>
+                    <div class="results-container">
+                        <div id="path-results"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="renderer.js"></script>
+</body>
+</html>

@@ -1,0 +1,27 @@
+# Node modules
+node_modules/
+
+# Build outputs
+dist/
+backend/build/*.o
+backend/build/*.exe
+
+# Logs
+*.log
+npm-debug.log*
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# IDE
+.vscode/
+.idea/
+
+# Temporary files
+*.tmp
+*.temp
+
+# CSV data files (optional - uncomment if you don't want to commit data)
+# *.csv
+network_data.csv
