@@ -1,6 +1,184 @@
 const { ipcRenderer } = require('electron');
 
 let currentView = 'data';
+let currentLang = 'zh';
+
+// 国际化翻译
+const translations = {
+    zh: {
+        // 导航
+        'nav.data': '数据管理',
+        'nav.traffic': '流量分析',
+        'nav.security': '安全检测',
+        'nav.topology': '拓扑分析',
+        'nav.path': '路径分析',
+        'nav.capture': '实时抓包',
+
+        // 页面标题
+        'title.data': '数据管理',
+        'title.traffic': '流量分析',
+        'title.security': '安全检测',
+        'title.topology': '拓扑分析',
+        'title.path': '路径分析',
+        'title.capture': '实时抓包',
+
+        // 按钮
+        'btn.loadCsv': '加载 CSV 文件',
+        'btn.top10': 'Top 10 节点',
+        'btn.https': 'HTTPS 流量',
+        'btn.unidirectional': '单向流量 >80%',
+        'btn.detectAnomaly': '检测异常',
+        'btn.checkAcl': '检查 ACL',
+        'btn.findStar': '查找星型结构',
+        'btn.findPath': '查找路径',
+        'btn.startCapture': '▶️ 开始抓包',
+        'btn.stopCapture': '⏹️ 停止抓包',
+        'btn.loadCaptured': '📂 加载抓包数据',
+
+        // 标签
+        'label.currentFile': '当前文件',
+        'label.noFile': '未加载文件',
+        'label.instructions': '使用说明',
+        'label.sourceIp': '源 IP：',
+        'label.destIp': '目标 IP：',
+        'label.targetIp': '目标 IP：',
+        'label.startIp': '起始 IP：',
+        'label.endIp': '结束 IP：',
+        'label.ruleType': '规则类型：',
+        'label.duration': '抓包时长（秒）：',
+        'label.status': '状态',
+
+        // 结果标题
+        'result.title': '分析结果',
+        'result.noData': '暂无数据',
+        'result.acl': 'ACL 访问控制检查',
+        'result.pathBfs': '查找最短路径',
+
+        // ACL
+        'acl.deny': '拒绝',
+        'acl.allow': '允许',
+        'acl.description': '检查目标 IP 是否违反访问控制规则（禁止/允许与指定 IP 范围建立会话）',
+
+        // 抓包
+        'capture.title': '📡 实时抓包',
+        'capture.description': '捕获实时网络流量并聚合为流数据。需要管理员权限。',
+
+        // 说明
+        'instruction.1': '点击"加载 CSV 文件"选择网络流量数据文件',
+        'instruction.2': '等待数据加载和处理完成',
+        'instruction.3': '使用导航菜单访问不同的分析功能',
+    },
+    en: {
+        // Navigation
+        'nav.data': 'Data Management',
+        'nav.traffic': 'Traffic Analysis',
+        'nav.security': 'Security',
+        'nav.topology': 'Topology',
+        'nav.path': 'Path Analysis',
+        'nav.capture': 'Live Capture',
+
+        // Page titles
+        'title.data': 'Data Management',
+        'title.traffic': 'Traffic Analysis',
+        'title.security': 'Security Detection',
+        'title.topology': 'Topology Analysis',
+        'title.path': 'Path Analysis',
+        'title.capture': 'Live Packet Capture',
+
+        // Buttons
+        'btn.loadCsv': 'Load CSV File',
+        'btn.top10': 'Top 10 Nodes',
+        'btn.https': 'HTTPS Traffic',
+        'btn.unidirectional': 'Unidirectional >80%',
+        'btn.detectAnomaly': 'Detect Anomaly',
+        'btn.checkAcl': 'Check ACL',
+        'btn.findStar': 'Find Star Structures',
+        'btn.findPath': 'Find Path',
+        'btn.startCapture': '▶️ Start Capture',
+        'btn.stopCapture': '⏹️ Stop Capture',
+        'btn.loadCaptured': '📂 Load Captured Data',
+
+        // Labels
+        'label.currentFile': 'Current File',
+        'label.noFile': 'No file loaded',
+        'label.instructions': 'Instructions',
+        'label.sourceIp': 'Source IP:',
+        'label.destIp': 'Destination IP:',
+        'label.targetIp': 'Target IP:',
+        'label.startIp': 'Start IP:',
+        'label.endIp': 'End IP:',
+        'label.ruleType': 'Rule Type:',
+        'label.duration': 'Duration (seconds):',
+        'label.status': 'Status',
+
+        // Result titles
+        'result.title': 'Analysis Results',
+        'result.noData': 'No data',
+        'result.acl': 'ACL Access Control Check',
+        'result.pathBfs': 'Find Shortest Path',
+
+        // ACL
+        'acl.deny': 'Deny',
+        'acl.allow': 'Allow',
+        'acl.description': 'Check if target IP violates access control rules (deny/allow sessions with specified IP range)',
+
+        // Capture
+        'capture.title': '📡 Real-time Packet Capture',
+        'capture.description': 'Capture real-time network traffic and aggregate into flow data. Requires administrator privileges.',
+
+        // Instructions
+        'instruction.1': 'Click "Load CSV File" to select a network traffic data file',
+        'instruction.2': 'Wait for data to be loaded and processed',
+        'instruction.3': 'Use the navigation menu to access different analysis functions',
+    }
+};
+
+function t(key) {
+    return translations[currentLang][key] || key;
+}
+
+function updateLanguage() {
+    // 更新所有带 data-i18n 属性的元素
+    document.querySelectorAll('[data-i18n]').forEach(el => {
+        const key = el.getAttribute('data-i18n');
+        const translation = translations[currentLang][key];
+        if (translation) {
+            if (el.tagName === 'INPUT' && el.placeholder !== undefined) {
+                el.placeholder = translation;
+            } else if (el.tagName === 'OPTION') {
+                el.textContent = translation;
+            } else if (el.id === 'current-file') {
+                // 特殊处理：只有在显示"未加载文件"时才翻译
+                const currentText = el.textContent.trim();
+                if (currentText === '未加载文件' || currentText === 'No file loaded') {
+                    el.textContent = translation;
+                }
+                // 如果是文件路径，不翻译，保持原样
+            } else {
+                el.textContent = translation;
+            }
+        }
+    });
+
+    // 更新页面标题
+    const titleKey = `title.${currentView}`;
+    document.getElementById('page-title').textContent = t(titleKey);
+
+    // 更新语言按钮样式
+    document.getElementById('lang-zh').style.background = currentLang === 'zh' ? '#3b82f6' : '#334155';
+    document.getElementById('lang-en').style.background = currentLang === 'en' ? '#3b82f6' : '#334155';
+}
+
+// 语言切换按钮
+document.getElementById('lang-zh').addEventListener('click', () => {
+    currentLang = 'zh';
+    updateLanguage();
+});
+
+document.getElementById('lang-en').addEventListener('click', () => {
+    currentLang = 'en';
+    updateLanguage();
+});
 
 // 导航切换
 document.querySelectorAll('.nav-item').forEach(item => {
@@ -26,16 +204,9 @@ function switchView(view) {
     document.getElementById(`${view}-view`).classList.add('active');
 
     // 更新标题
-    const titles = {
-        'data': 'Data Management',
-        'traffic': 'Traffic Analysis',
-        'security': 'Security Analysis',
-        'topology': 'Network Topology',
-        'path': 'Path Analysis'
-    };
-    document.getElementById('page-title').textContent = titles[view];
-
     currentView = view;
+    const titleKey = `title.${view}`;
+    document.getElementById('page-title').textContent = t(titleKey);
 }
 
 // 加载 CSV 文件

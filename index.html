@@ -18,27 +18,27 @@
             <nav class="nav-menu">
                 <button class="nav-item active" data-view="data">
                     <span class="icon">📊</span>
-                    <span>Data Management</span>
+                    <span data-i18n="nav.data">数据管理</span>
                 </button>
                 <button class="nav-item" data-view="traffic">
                     <span class="icon">📈</span>
-                    <span>Traffic Analysis</span>
+                    <span data-i18n="nav.traffic">流量分析</span>
                 </button>
                 <button class="nav-item" data-view="security">
                     <span class="icon">🔒</span>
-                    <span>Security</span>
+                    <span data-i18n="nav.security">安全检测</span>
                 </button>
                 <button class="nav-item" data-view="topology">
                     <span class="icon">🌐</span>
-                    <span>Topology</span>
+                    <span data-i18n="nav.topology">拓扑分析</span>
                 </button>
                 <button class="nav-item" data-view="path">
                     <span class="icon">🛣️</span>
-                    <span>Path Analysis</span>
+                    <span data-i18n="nav.path">路径分析</span>
                 </button>
                 <button class="nav-item" data-view="capture">
                     <span class="icon">📡</span>
-                    <span>Live Capture</span>
+                    <span data-i18n="nav.capture">实时抓包</span>
                 </button>
             </nav>
         </div>
@@ -46,23 +46,27 @@
         <!-- 主内容区 -->
         <div class="main-content">
             <div class="header">
-                <h1 id="page-title">Data Management</h1>
-                <button class="btn-primary" id="load-csv-btn">Load CSV File</button>
+                <h1 id="page-title" data-i18n="title.data">数据管理</h1>
+                <div style="display: flex; gap: 10px; align-items: center;">
+                    <button class="lang-btn" id="lang-zh" style="padding: 8px 15px; background: #3b82f6; border: none; border-radius: 6px; color: white; cursor: pointer; font-size: 14px;">中文</button>
+                    <button class="lang-btn" id="lang-en" style="padding: 8px 15px; background: #334155; border: none; border-radius: 6px; color: white; cursor: pointer; font-size: 14px;">English</button>
+                    <button class="btn-primary" id="load-csv-btn" data-i18n="btn.loadCsv">加载 CSV 文件</button>
+                </div>
             </div>
 
             <div class="content-area">
                 <!-- Data Management View -->
                 <div class="view active" id="data-view">
                     <div class="card">
-                        <h3>Current File</h3>
-                        <p id="current-file">No file loaded</p>
+                        <h3 data-i18n="label.currentFile">当前文件</h3>
+                        <p id="current-file" data-i18n="label.noFile">未加载文件</p>
                     </div>
                     <div class="card">
-                        <h3>Instructions</h3>
+                        <h3 data-i18n="label.instructions">使用说明</h3>
                         <ol>
-                            <li>Click "Load CSV File" to select a network traffic data file</li>
-                            <li>Wait for the data to be loaded and processed</li>
-                            <li>Use the navigation menu to access different analysis functions</li>
+                            <li data-i18n="instruction.1">点击"加载 CSV 文件"选择网络流量数据文件</li>
+                            <li data-i18n="instruction.2">等待数据加载和处理完成</li>
+                            <li data-i18n="instruction.3">使用导航菜单访问不同的分析功能</li>
                         </ol>
                     </div>
                 </div>
@@ -70,9 +74,9 @@
                 <!-- Traffic Analysis View -->
                 <div class="view" id="traffic-view">
                     <div class="action-bar">
-                        <button class="btn" id="top-nodes-btn">Top 10 Nodes</button>
-                        <button class="btn" id="https-nodes-btn">HTTPS Traffic</button>
-                        <button class="btn" id="unidirectional-btn">Unidirectional >80%</button>
+                        <button class="btn" id="top-nodes-btn" data-i18n="btn.top10">Top 10 节点</button>
+                        <button class="btn" id="https-nodes-btn" data-i18n="btn.https">HTTPS 流量</button>
+                        <button class="btn" id="unidirectional-btn" data-i18n="btn.unidirectional">单向流量 >80%</button>
                     </div>
                     <div class="results-container">
                         <div id="traffic-results"></div>
@@ -82,33 +86,33 @@
                 <!-- Security View -->
                 <div class="view" id="security-view">
                     <div class="action-bar">
-                        <button class="btn" id="anomaly-btn">Detect Anomalies</button>
+                        <button class="btn" id="anomaly-btn" data-i18n="btn.detectAnomaly">检测异常</button>
                     </div>
                     <div class="card">
-                        <h3>ACL Access Control Check</h3>
-                        <p style="color: #94a3b8; font-size: 14px; margin-bottom: 15px;">
+                        <h3 data-i18n="result.acl">ACL 访问控制检查</h3>
+                        <p style="color: #94a3b8; font-size: 14px; margin-bottom: 15px;" data-i18n="acl.description">
                             检查目标 IP 是否违反访问控制规则（禁止/允许与指定 IP 范围建立会话）
                         </p>
                         <div class="form-group">
-                            <label>Target IP (地址1):</label>
+                            <label data-i18n="label.targetIp">目标 IP：</label>
                             <input type="text" id="acl-target-ip" placeholder="e.g., 183.94.22.88">
                         </div>
                         <div class="form-group">
-                            <label>Start IP (地址2 - 范围起始):</label>
+                            <label data-i18n="label.startIp">起始 IP：</label>
                             <input type="text" id="acl-start-ip" placeholder="e.g., 116.0.0.0">
                         </div>
                         <div class="form-group">
-                            <label>End IP (地址3 - 范围结束):</label>
+                            <label data-i18n="label.endIp">结束 IP：</label>
                             <input type="text" id="acl-end-ip" placeholder="e.g., 116.255.255.255">
                         </div>
                         <div class="form-group">
-                            <label>Rule Type:</label>
+                            <label data-i18n="label.ruleType">规则类型：</label>
                             <select id="acl-rule-type" style="width: 100%; padding: 10px; background: #1e293b; border: 1px solid #334155; border-radius: 6px; color: #e2e8f0; font-size: 14px;">
-                                <option value="Deny">Deny (禁止)</option>
-                                <option value="Allow">Allow (允许)</option>
+                                <option value="Deny" data-i18n="acl.deny">拒绝</option>
+                                <option value="Allow" data-i18n="acl.allow">允许</option>
                             </select>
                         </div>
-                        <button class="btn-primary" id="acl-check-btn">Check ACL</button>
+                        <button class="btn-primary" id="acl-check-btn" data-i18n="btn.checkAcl">检查 ACL</button>
                     </div>
                     <div class="results-container">
                         <div id="security-results"></div>
@@ -118,7 +122,7 @@
                 <!-- Topology View -->
                 <div class="view" id="topology-view">
                     <div class="action-bar">
-                        <button class="btn" id="star-structure-btn">Find Star Structures</button>
+                        <button class="btn" id="star-structure-btn" data-i18n="btn.findStar">查找星型结构</button>
                     </div>
                     <div class="results-container">
                         <div id="topology-results"></div>
@@ -128,16 +132,16 @@
                 <!-- Path Analysis View -->
                 <div class="view" id="path-view">
                     <div class="card">
-                        <h3>Find Shortest Path</h3>
+                        <h3 data-i18n="result.pathBfs">查找最短路径</h3>
                         <div class="form-group">
-                            <label>Source IP:</label>
+                            <label data-i18n="label.sourceIp">源 IP：</label>
                             <input type="text" id="src-ip" placeholder="e.g., 192.168.1.1">
                         </div>
                         <div class="form-group">
-                            <label>Destination IP:</label>
+                            <label data-i18n="label.destIp">目标 IP：</label>
                             <input type="text" id="dst-ip" placeholder="e.g., 8.8.8.8">
                         </div>
-                        <button class="btn-primary" id="find-path-btn">Find Path</button>
+                        <button class="btn-primary" id="find-path-btn" data-i18n="btn.findPath">查找路径</button>
                     </div>
                     <div class="results-container">
                         <div id="path-results"></div>
@@ -147,28 +151,28 @@
                 <!-- Live Capture View -->
                 <div class="view" id="capture-view">
                     <div class="card">
-                        <h3>📡 Real-time Packet Capture</h3>
-                        <p style="color: #94a3b8; font-size: 14px; margin-bottom: 15px;">
+                        <h3 data-i18n="capture.title">📡 实时抓包</h3>
+                        <p style="color: #94a3b8; font-size: 14px; margin-bottom: 15px;" data-i18n="capture.description">
                             捕获实时网络流量并聚合为流数据。需要管理员权限。
                         </p>
                         <div class="form-group">
-                            <label>Capture Duration (seconds):</label>
+                            <label data-i18n="label.duration">抓包时长（秒）：</label>
                             <input type="number" id="capture-duration" value="30" min="5" max="300"
                                    style="width: 100%; padding: 10px; background: #1e293b; border: 1px solid #334155; border-radius: 6px; color: #e2e8f0; font-size: 14px;">
                         </div>
                         <div class="action-bar">
                             <button class="btn-primary" id="start-capture-btn">
-                                <span>▶️ Start Capture</span>
+                                <span data-i18n="btn.startCapture">▶️ 开始抓包</span>
                             </button>
                             <button class="btn" id="stop-capture-btn" disabled style="background: #7f1d1d;">
-                                <span>⏹️ Stop Capture</span>
+                                <span data-i18n="btn.stopCapture">⏹️ 停止抓包</span>
                             </button>
                             <button class="btn" id="load-captured-btn" disabled>
-                                <span>📂 Load Captured Data</span>
+                                <span data-i18n="btn.loadCaptured">📂 加载抓包数据</span>
                             </button>
                         </div>
                         <div id="capture-status" style="margin-top: 15px; padding: 15px; background: #1e293b; border-radius: 8px; display: none;">
-                            <h4 style="margin: 0 0 10px 0; color: #60a5fa;">Capture Status</h4>
+                            <h4 style="margin: 0 0 10px 0; color: #60a5fa;" data-i18n="label.status">状态：</h4>
                             <div id="capture-info" style="color: #94a3b8;"></div>
                         </div>
                     </div>
