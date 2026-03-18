@@ -425,3 +425,124 @@ function parseACLResults(output, params) {
         violations
     };
 }
+
+// 实时抓包功能
+let captureProcess = null;
+
+ipcMain.handle('start-capture', async (event, duration) => {
+    try {
+        if (captureProcess) {
+            return { success: false, message: 'Capture already running' };
+        }
+
+        // 启动 Python 抓包脚本
+        captureProcess = spawn('python', ['capture_packets.py', duration.toString()], {
+            cwd: __dirname
+        });
+
+        let output = '';
+
+        captureProcess.stdout.on('data', (data) => {
+            const message = data.toString().trim();
+            output += message + '\n';
+            console.log('Capture:', message);
+            
+            // 发送进度更新到渲染进程
+            if (mainWindow) {
+                mainWindow.webContents.send('capture-progress', { message });
+            }
+        });
+
+        captureProcess.stderr.on('data', (data) => {
+            console.error('Capture error:', data.toString());
+        });
+
+        captureProcess.on('close', (code) => {
+            console.log('Capture process exited with code', code);
+            
+            // 解析输出获取流数量
+            const flowMatch = output.match(/Exported (\d+) flows/);
+            const flows = flowMatch ? parseInt(flowMatch[1]) : 0;
+            
+            if (mainWindow) {
+                mainWindow.webContents.send('capture-complete', { flows, code });
+            }
+            
+            captureProcess = null;
+        });
+
+        return { success: true };
+    } catch (error) {
+        captureProcess = null;
+        return { success: false, message: error.message };
+    }
+});
+
+ipcMain.handle('stop-capture', async () => {
+    try {
+        if (!captureProcess) {
+            return { success: false, message: 'No capture running' };
+        }
+
+        // 发送 SIGINT 信号停止抓包
+        captureProcess.kill('SIGINT');
+        
+        // 等待进程结束
+        await new Promise(resolve => setTimeout(resolve, 2000));
+        
+        // 读取 captured.csv 获取流数量
+        const csvPath = path.join(__dirname, 'captured.csv');
+        let flows = 0;
+        
+        if (fs.existsSync(csvPath)) {
+            const content = fs.readFileSync(csvPath, 'utf-8');
+            flows = content.split('\n').length - 2; // 减去标题行和空行
+        }
+        
+        return { success: true, flows };
+    } catch (error) {
+        return { success: false, message: error.message };
+    }
+});
+
+ipcMain.handle('load-captured-data', async () => {
+    try {
+        const csvPath = 'captured.csv';  // 使用相对路径
+        const fullPath = path.join(__dirname, csvPath);
+
+        if (!fs.existsSync(fullPath)) {
+            return { success: false, message: 'No captured data found. Please capture packets first.' };
+        }
+
+        // 检查文件内容
+        const content = fs.readFileSync(fullPath, 'utf-8');
+        const lines = content.trim().split('\n');
+        console.log(`Captured CSV has ${lines.length} lines (including header)`);
+
+        if (lines.length < 2) {
+            return { success: false, message: 'Captured file is empty or has no data rows' };
+        }
+
+        // 使用 C 后端加载捕获的数据（使用相对路径）
+        console.log('Loading captured data with C backend...');
+        console.log('CSV path:', csvPath);
+        const output = await runAnalyzer(['8', csvPath, '0']);
+        console.log('C backend output:', output);
+
+        // 解析节点数量
+        const nodeMatch = output.match(/Current graph has (\d+) nodes/);
+        const nodeCount = nodeMatch ? parseInt(nodeMatch[1]) : 0;
+
+        console.log(`Parsed node count: ${nodeCount}`);
+
+        if (nodeCount > 0) {
+            currentCsvPath = csvPath;
+            return { success: true, nodeCount };
+        } else {
+            return { success: false, message: `Failed to load captured data. Output: ${output.substring(0, 300)}` };
+        }
+    } catch (error) {
+        console.error('Error loading captured data:', error);
+        return { success: false, message: error.message };
+    }
+});

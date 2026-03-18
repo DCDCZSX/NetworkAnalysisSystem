@@ -20,6 +20,12 @@
 - **BFS vs Dijkstra** - 对比两种算法的路径查找结果
 - 显示跳数、拥塞程度和完整路径
 
+### 📡 实时抓包
+- **Live Packet Capture** - 实时捕获网络数据包
+- **Flow Aggregation** - 自动聚合为流数据
+- **Auto Load** - 捕获后自动加载到分析引擎
+- 详见：[CAPTURE_GUIDE.md](CAPTURE_GUIDE.md)
+
 ## 技术栈
 
 - **前端**: HTML + CSS + JavaScript
@@ -33,6 +39,10 @@
 
 - Node.js (v14+)
 - GCC 编译器（用于编译 C 后端）
+- Python 3.x + Scapy（用于实时抓包功能）
+  ```bash
+  pip install scapy
+  ```
 
 ### 安装步骤
 

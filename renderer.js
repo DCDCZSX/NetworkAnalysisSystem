@@ -401,3 +401,118 @@ function displayACLResults(aclData, container, params) {
 
     container.innerHTML = html;
 }
+
+// 实时抓包功能
+let captureProcess = null;
+
+document.getElementById('start-capture-btn').addEventListener('click', async () => {
+    const duration = parseInt(document.getElementById('capture-duration').value);
+    const startBtn = document.getElementById('start-capture-btn');
+    const stopBtn = document.getElementById('stop-capture-btn');
+    const loadBtn = document.getElementById('load-captured-btn');
+    const statusDiv = document.getElementById('capture-status');
+    const infoDiv = document.getElementById('capture-info');
+    const resultsDiv = document.getElementById('capture-results');
+
+    startBtn.disabled = true;
+    stopBtn.disabled = false;
+    loadBtn.disabled = true;
+    statusDiv.style.display = 'block';
+    infoDiv.innerHTML = '🔄 Starting packet capture...';
+    resultsDiv.innerHTML = '';
+
+    try {
+        const result = await ipcRenderer.invoke('start-capture', duration);
+        if (result.success) {
+            infoDiv.innerHTML = `
+                ✅ Capture started<br>
+                Duration: ${duration} seconds<br>
+                Status: Capturing packets...
+            `;
+        } else {
+            infoDiv.innerHTML = `❌ Failed to start capture: ${result.message}`;
+            startBtn.disabled = false;
+            stopBtn.disabled = true;
+        }
+    } catch (error) {
+        infoDiv.innerHTML = `❌ Error: ${error.message}`;
+        startBtn.disabled = false;
+        stopBtn.disabled = true;
+    }
+});
+
+document.getElementById('stop-capture-btn').addEventListener('click', async () => {
+    const startBtn = document.getElementById('start-capture-btn');
+    const stopBtn = document.getElementById('stop-capture-btn');
+    const infoDiv = document.getElementById('capture-info');
+
+    stopBtn.disabled = true;
+    infoDiv.innerHTML = '⏹️ Stopping capture...';
+
+    try {
+        const result = await ipcRenderer.invoke('stop-capture');
+        if (result.success) {
+            infoDiv.innerHTML = `✅ Capture stopped<br>Captured ${result.flows} flows`;
+            startBtn.disabled = false;
+            document.getElementById('load-captured-btn').disabled = false;
+        } else {
+            infoDiv.innerHTML = `❌ ${result.message}`;
+            startBtn.disabled = false;
+        }
+    } catch (error) {
+        infoDiv.innerHTML = `❌ Error: ${error.message}`;
+        startBtn.disabled = false;
+    }
+});
+
+document.getElementById('load-captured-btn').addEventListener('click', async () => {
+    const resultsDiv = document.getElementById('capture-results');
+    const infoDiv = document.getElementById('capture-info');
+
+    resultsDiv.innerHTML = '<div class="loading">Loading captured data...</div>';
+
+    try {
+        const result = await ipcRenderer.invoke('load-captured-data');
+        if (result.success) {
+            infoDiv.innerHTML = `✅ Data loaded successfully<br>Total nodes: ${result.nodeCount}`;
+            resultsDiv.innerHTML = `
+                <div class="success-message" style="background: #064e3b; border: 1px solid #059669; padding: 20px; border-radius: 8px; color: #10b981;">
+                    <h3>✓ Captured Data Loaded</h3>
+                    <p>Successfully loaded ${result.nodeCount} nodes from captured traffic</p>
+                    <p>You can now use other analysis functions with this data</p>
+                </div>
+            `;
+        } else {
+            resultsDiv.innerHTML = `<div class="error">${result.message}</div>`;
+        }
+    } catch (error) {
+        resultsDiv.innerHTML = `<div class="error">Error: ${error.message}</div>`;
+    }
+});
+
+// 监听抓包进度更新
+ipcRenderer.on('capture-progress', (event, data) => {
+    const infoDiv = document.getElementById('capture-info');
+    infoDiv.innerHTML = `
+        📡 Capturing packets...<br>
+        ${data.message}
+    `;
+});
+
+// 监听抓包完成
+ipcRenderer.on('capture-complete', (event, data) => {
+    const startBtn = document.getElementById('start-capture-btn');
+    const stopBtn = document.getElementById('stop-capture-btn');
+    const loadBtn = document.getElementById('load-captured-btn');
+    const infoDiv = document.getElementById('capture-info');
+
+    startBtn.disabled = false;
+    stopBtn.disabled = true;
+    loadBtn.disabled = false;
+
+    infoDiv.innerHTML = `
+        ✅ Capture completed<br>
+        Captured ${data.flows} flows<br>
+        Output file: captured.csv
+    `;
+});

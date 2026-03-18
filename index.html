@@ -36,6 +36,10 @@
                     <span class="icon">🛣️</span>
                     <span>Path Analysis</span>
                 </button>
+                <button class="nav-item" data-view="capture">
+                    <span class="icon">📡</span>
+                    <span>Live Capture</span>
+                </button>
             </nav>
         </div>
 
@@ -137,6 +141,39 @@
                     </div>
                     <div class="results-container">
                         <div id="path-results"></div>
+                    </div>
+                </div>
+
+                <!-- Live Capture View -->
+                <div class="view" id="capture-view">
+                    <div class="card">
+                        <h3>📡 Real-time Packet Capture</h3>
+                        <p style="color: #94a3b8; font-size: 14px; margin-bottom: 15px;">
+                            捕获实时网络流量并聚合为流数据。需要管理员权限。
+                        </p>
+                        <div class="form-group">
+                            <label>Capture Duration (seconds):</label>
+                            <input type="number" id="capture-duration" value="30" min="5" max="300"
+                                   style="width: 100%; padding: 10px; background: #1e293b; border: 1px solid #334155; border-radius: 6px; color: #e2e8f0; font-size: 14px;">
+                        </div>
+                        <div class="action-bar">
+                            <button class="btn-primary" id="start-capture-btn">
+                                <span>▶️ Start Capture</span>
+                            </button>
+                            <button class="btn" id="stop-capture-btn" disabled style="background: #7f1d1d;">
+                                <span>⏹️ Stop Capture</span>
+                            </button>
+                            <button class="btn" id="load-captured-btn" disabled>
+                                <span>📂 Load Captured Data</span>
+                            </button>
+                        </div>
+                        <div id="capture-status" style="margin-top: 15px; padding: 15px; background: #1e293b; border-radius: 8px; display: none;">
+                            <h4 style="margin: 0 0 10px 0; color: #60a5fa;">Capture Status</h4>
+                            <div id="capture-info" style="color: #94a3b8;"></div>
+                        </div>
+                    </div>
+                    <div class="results-container">
+                        <div id="capture-results"></div>
                     </div>
                 </div>
             </div>
